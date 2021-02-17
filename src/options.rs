@@ -77,9 +77,7 @@ pub struct Options {
 
     #[structopt(
         parse(try_from_os_str = osstr_to_abspath),
-        required = true,
-        validator = file_exist
-    )]
+        required = true)]
     /// Paths to your source code files
     pub src: Vec<PathBuf>,
 
@@ -188,15 +186,5 @@ fn osstr_to_abspath(v: &OsStr) -> Result<PathBuf, OsString> {
         Ok(r)
     } else {
         Err(v.into())
-    }
-}
-
-/// structopt compataible function to check whether a file exists
-fn file_exist(v: String) -> Result<(), String> {
-    let p = PathBuf::from(v);
-    if !p.is_file() {
-        Err(format!("input file does not exist: {:?}", p))
-    } else {
-        Ok(())
     }
 }

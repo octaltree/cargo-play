@@ -46,11 +46,12 @@ fn main() -> Result<(), CargoPlayError> {
         }
     }
 
-    let files = parse_inputs(&opt.src)?;
-    let dependencies = extract_headers(&files);
+    let files = read_inputs(&opt.src)?;
+    let contents: Vec<&str> = files.iter().map(|(content, _)| content.as_ref()).collect();
+    let dependencies = extract_headers(&contents);
 
     let infers = if opt.infer {
-        infer::analyze_sources(&opt.src)?
+        infer::analyze_sources(&contents)?
     } else {
         HashSet::new()
     };
@@ -66,7 +67,7 @@ fn main() -> Result<(), CargoPlayError> {
         opt.edition.clone(),
         infers,
     )?;
-    copy_sources(&temp, &opt.src)?;
+    copy_sources(&temp, &files)?;
 
     let end = if let Some(save) = opt.save {
         copy_project(&temp, &save)?
@@ -86,7 +87,7 @@ mod tests {
 
     #[test]
     fn test_extract_headers() {
-        let inputs: Vec<String> = vec![
+        let inputs: Vec<&str> = vec![
             r#"//# line 1
 //# line 2
 // line 3
